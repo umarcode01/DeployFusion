@@ -6,7 +6,7 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-      - run: python main.py
+      - run: html index.html
   test:
     docker:
       - image: cimg/python:3.11
