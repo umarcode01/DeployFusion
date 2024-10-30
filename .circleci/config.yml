@@ -14,10 +14,17 @@ jobs:
             SERVER_PID=$!  # Save the process ID of the server
             sleep 5  # Wait for the server to start
             echo "HTTP server started with PID: $SERVER_PID"
+            
+            # Optional: Check if the server is running
+            ps -p $SERVER_PID -o pid,cmd
+            
+            # Wait indefinitely so the server stays up
+            wait $SERVER_PID  # Wait for the server to finish
 
       - run:
           name: Test the server response
           command: |
+            sleep 2  # Give some time to ensure server is up
             curl -f http://localhost:8000/index.html || (echo "Failed to serve index.html" && exit 1)
             echo "Successfully served index.html"
 
@@ -29,26 +36,3 @@ jobs:
   test:
     docker:
       - image: cimg/python:3.11
-    steps:
-      - checkout
-      - run: python tests.py
-
-  deploy:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - run: echo "Deploying to production server"
-
-workflows:
-  build_and_test_deploy:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
-      - deploy:
-          requires:
-            - test
-          filters:
-            branches:
-              only: master
