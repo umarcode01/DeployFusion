@@ -6,13 +6,24 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-      - run: Serve index.html
+      - run:
+          name: Serve index.html
+          command: |
+            # Start a simple HTTP server
+            python -m http.server 8000 &
+            sleep 5  # Wait for the server to start
+      - run:
+          name: Test the server response
+          command: |
+            curl -f http://localhost:8000/index.html || (echo "Failed to serve index.html" && exit 1)
+
   test:
     docker:
       - image: cimg/python:3.11
     steps:
       - checkout
       - run: python tests.py
+
   deploy:
     docker:
       - image: cimg/python:3.11
@@ -25,7 +36,7 @@ workflows:
       - build
       - test:
           requires:
-            - build 
+            - build
       - deploy:
           requires:
             - test
