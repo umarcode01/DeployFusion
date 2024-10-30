@@ -7,15 +7,24 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Serve index.html
+          name: Start HTTP Server
           command: |
-            # Start a simple HTTP server
+            # Start the HTTP server in the background
             python -m http.server 8000 &
+            SERVER_PID=$!  # Save the process ID of the server
             sleep 5  # Wait for the server to start
+            echo "HTTP server started with PID: $SERVER_PID"
+
       - run:
           name: Test the server response
           command: |
             curl -f http://localhost:8000/index.html || (echo "Failed to serve index.html" && exit 1)
+            echo "Successfully served index.html"
+
+      - run:
+          name: Stop the server
+          command: |
+            kill $SERVER_PID  # Stop the server
 
   test:
     docker:
