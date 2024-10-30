@@ -1,1 +1,35 @@
+version: 2.1
 
+jobs:
+  build:
+    docker:
+      - image: circleci/node:14 # Use the appropriate image for your stack
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - run:
+          name: Run Tests
+          command: npm test
+      - run:
+          name: Build Project
+          command: npm run build
+
+  deploy:
+    docker:
+      - image: circleci/python:3.8 # Use appropriate image for deployment
+    steps:
+      - checkout
+      - run:
+          name: Deploy to Production
+          command: ./deploy.sh # Adjust to your deployment script
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
