@@ -17,16 +17,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: List directory contents
+        run: ls -R
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '16'  # Specify your Node.js version
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd path/to/your/directory  # Change this to where your package.json is located
+          npm install
 
       - name: Run tests
-        run: npm test  # Adjust this command based on your testing setup
+        run: |
+          cd path/to/your/directory  # Make sure to navigate again if needed
+          npm test
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
