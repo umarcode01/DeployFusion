@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD for Static Website
 
 on:
   push:
@@ -6,23 +6,40 @@ on:
       - master
 
 jobs:
-  build-test-deploy:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v2
         with:
-          python-version: '3.8'  # Specify your Python version
+          node-version: '16'  # Use the Node.js version suitable for Vercel CLI
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt  # Adjust if you have a different setup
+      - name: Install HTMLHint
+        run: npm install -g htmlhint
 
-      - name: Run tests
-        run: pytest  # Change this to your test command
+      - name: Lint HTML files
+        run: htmlhint ./**/*.html
+
+      - name: Install stylelint
+        run: npm install -g stylelint stylelint-config-standard
+
+      - name: Lint CSS files
+        run: stylelint "**/*.css"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: ci  # Ensures this job runs after the CI job
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
 
       - name: Deploy to Vercel
-        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }}
