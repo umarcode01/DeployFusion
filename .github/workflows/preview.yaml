@@ -1,8 +1,4 @@
-name: Vercel CI/CD Pipeline
-
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+name: CI/CD Pipeline
 
 on:
   push:
@@ -17,32 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: List directory contents
-        run: ls -R
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          node-version: '16'  # Specify your Node.js version
+          python-version: '3.8'  # Specify your Python version
 
       - name: Install dependencies
-        run: |
-          cd path/to/your/directory  # Change this to where your package.json is located
-          npm install
+        run: pip install -r requirements.txt  # Adjust if you have a different setup
 
       - name: Run tests
-        run: |
-          cd path/to/your/directory  # Make sure to navigate again if needed
-          npm test
+        run: pytest  # Change this to your test command
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy to Vercel
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
